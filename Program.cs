@@ -1,182 +1,203 @@
 ﻿using System;
 
-public class LineSegment
+public class AlarmSystem
 {
     // Поля
-    private double x;   // Координата начала отрезка на координатной прямой
-    private double y;   // Координата конца отрезка на координатной прямой
+    private bool _isMotionSensorTriggered;
+    private bool _isSoundSensorTriggered;
 
     // Свойства
-    public double X {
-        get { return x; }
+    public bool IsMotionSensorTriggered 
+    { 
+        get 
+        { return _isMotionSensorTriggered; } 
     }
-    public double Y {
-        get { return y; }
+    public bool IsSoundSensorTriggered 
+    { 
+        get
+        { return _isSoundSensorTriggered; }
     }
 
     // Конструкторы
-    public LineSegment(double x, double y)
+    public AlarmSystem()    // Без параметров
     {
-        this.x = x;
-        this.y = y;
+        _isMotionSensorTriggered = false;
+        _isSoundSensorTriggered = false;
+    }
+    public AlarmSystem(bool isMotionSensorTriggered, bool isSoundSensorTriggered)   // С двумя параметрами
+    {
+        _isMotionSensorTriggered = isMotionSensorTriggered;
+        _isSoundSensorTriggered = isSoundSensorTriggered;
+    }
+    public AlarmSystem(AlarmSystem other)   // Конструктор копирования
+    {
+        _isMotionSensorTriggered = other.IsMotionSensorTriggered;
+        _isSoundSensorTriggered = other.IsSoundSensorTriggered;
     }
 
-    // Метод для нахождения пересечения двух отрезков
-    public static LineSegment Intersect(LineSegment segment1, LineSegment segment2)
+    // Методы
+    public bool NotDisjunction()    // Метод, вычисляющий отрицание дизъюнкции полей
     {
-        // Сортируем по возрастанию координаты
-        double start1 = Math.Min(segment1.X, segment1.Y);
-        double end1 = Math.Max(segment1.X, segment1.Y);
-        double start2 = Math.Min(segment2.X, segment2.Y);
-        double end2 = Math.Max(segment2.X, segment2.Y);
-
-        // Определяем координаты пересечения
-        double intersectStart = Math.Max(start1, start2); // Начало пересекающегося отрезка
-        double intersectEnd = Math.Min(end1, end2);       // Конец пересекающегося отрезка
-
-        // Если пересечение существует
-        if (intersectStart <= intersectEnd)
-        {
-            return new LineSegment(intersectStart, intersectEnd); // Возвращаем пересекающийся отрезок
-        }
-
-        // Если пересечения нет
-        return null;
+        return !(_isMotionSensorTriggered || _isSoundSensorTriggered);
     }
 
-    // Перегрузка операций
-    // Унарная операция "!" — установка одной из координат в 0
-    public static LineSegment operator !(LineSegment segment)
+    public override string ToString()   // Перегрузка метода для вывода строки информации о состоянии сигнализации
     {
-        double start = Math.Min(segment.X, segment.Y);
-        double end = Math.Max(segment.X, segment.Y);
-
-        return (start >= 0) ? new LineSegment(0, end) : new LineSegment(start, 0);
-    }
-
-    // Приведение к int (неявное) — целая часть координаты конца отрезка (Y)
-    public static implicit operator int(LineSegment segment)
-    {
-        return (int)Math.Floor(segment.Y);
-    }
-
-    // Приведение к double (явное) — координата начала отрезка (X)
-    public static explicit operator double(LineSegment segment)
-    {
-        return segment.X;
-    }
-
-    // Бинарная операция + для "LineSegment + int"
-    public static LineSegment operator +(LineSegment segment, int value)
-    {
-        return new LineSegment(segment.X + value, segment.Y); // Увеличиваем X1
-    }
-
-    // Бинарная операция + для "int + LineSegment"
-    public static LineSegment operator +(int value, LineSegment segment)
-    {
-        return new LineSegment(segment.X, segment.Y + value); // Увеличиваем X2
-    }
-
-    // Бинарная операция ">" — проверяем, включает ли левый отрезок правый
-    public static bool operator >(LineSegment left, LineSegment right)
-    {
-        return left.X <= right.X && left.Y >= right.Y;
-    }
-
-    // Бинарная операция "<" — противоположность ">"
-    public static bool operator <(LineSegment left, LineSegment right)
-    {
-        return !(left > right);
-    }
-
-    // Переопределение метода ToString для удобного вывода
-    public override string ToString()
-    {
-        return $"LineSegment: [{X}, {Y}]";
+        return $"Реакция датчика движения: {_isMotionSensorTriggered}, " +
+            $"Реакция датчика звука: {_isSoundSensorTriggered}";
     }
 }
 
-public class Program
+public class AdvancedAlarmSystem : AlarmSystem 
+{
+    // Поля
+    private int _batteryLevel;              // уровень заряда батареи
+    private bool _isConnectedToNetwork;     // состояние подключения к сети
+
+    // Конструкторы
+    public AdvancedAlarmSystem() : base()   // Без параметров
+    {
+        _batteryLevel = 100;
+        _isConnectedToNetwork = true;
+    }
+
+    public AdvancedAlarmSystem(int batteryLevel, bool isConnectedToNetwork) : base()    // Два параметра
+    {
+        _batteryLevel = batteryLevel;
+        _isConnectedToNetwork = isConnectedToNetwork;
+    }
+
+    public AdvancedAlarmSystem(bool isSoundSensorTriggered, bool isMotionSensorTriggered, // Все параметры есть
+        int batteryLevel, bool isConnectedToNetwork)
+        : base(isSoundSensorTriggered, isMotionSensorTriggered)
+    {
+        _batteryLevel = batteryLevel;
+        _isConnectedToNetwork = isConnectedToNetwork;
+    }
+
+    // Методы
+    public bool IsBatteryLevelSufficient()  // Проверка, что заряда батареи достаточно для работы
+    {
+        return _batteryLevel > 20; // Предположим, что ниже 20% система может не работать надежно
+    }
+
+    public string GetConnectionStatus() // Проверка состояния связи
+    {
+        return _isConnectedToNetwork ? "Подключен к сети" : "Подключение отсутствует";
+    }
+
+    public override string ToString()   // Вывод полного состояния системы
+    {
+        return base.ToString() + $", Уровень заряда батареи: {_batteryLevel}%, " +
+            $"Состояние сети: {GetConnectionStatus()}";
+    }
+}
+
+class Program
 {
     public static void Main(string[] args)
     {
-        double x1, y1, x2, y2;
+        // Тесты для класса AlarmSystem
+        // 1. Тест конструктора без параметров
+        AlarmSystem alarm1 = new AlarmSystem();
+        Console.WriteLine("Test 1 - Конструктор без параметров для AlarmSystem:");
+        Console.WriteLine(alarm1.ToString()); 
+        Console.WriteLine("Отрицание дизъюнкции: " + alarm1.NotDisjunction());
+        Console.WriteLine();
 
-        // Ввод от пользователя для первого отрезка
-        Console.WriteLine("Введите координаты первого отрезка:");
+        // 2. Тест конструктора с параметрами
         
+        Console.WriteLine("Test 2 - Конструктор с параметрами:");
+
+        bool motionTrigger, soundTrigger;
         try
         {
-            Console.Write("Начальная точка (X1): ");
-            x1 = Convert.ToDouble(Console.ReadLine());
-            Console.Write("Конечная точка (Y1): ");
-            y1 = Convert.ToDouble(Console.ReadLine());
+            Console.Write("Включение датчика движения (true/false): ");
+            motionTrigger = Convert.ToBoolean(Console.ReadLine());
+            Console.Write("Включение датчика звука (true/false): ");
+            soundTrigger = Convert.ToBoolean(Console.ReadLine());
         } catch
         {
-            Console.WriteLine("Некорректно введены числа");
+            Console.WriteLine("Некорректный ввод данных");
             return;
         }
         
-        // Ввод от пользователя для второго отрезка
-        Console.WriteLine("Введите координаты второго отрезка:");
+        AlarmSystem alarm2 = new AlarmSystem(motionTrigger, soundTrigger);
+
+        Console.WriteLine(alarm2.ToString());
+        Console.WriteLine("Отрицание дизъюнкции: " + alarm2.NotDisjunction()); 
+        Console.WriteLine();
+
+        // 3. Тест конструктора копирования
+        AlarmSystem alarm3 = new AlarmSystem(alarm2);
+        Console.WriteLine("Test 3 - Конструктор копирования (alarm3 = alarm2):");
+        Console.WriteLine(alarm3.ToString());
+        Console.WriteLine("Отрицание дизъюнкции: " + alarm3.NotDisjunction()); 
+        Console.WriteLine();
+
+        // Тесты для класса AdvancedAlarmSystem
+
+        // 4. Тест конструктора без параметров
+        AdvancedAlarmSystem advAlarm1 = new AdvancedAlarmSystem();
+        Console.WriteLine("Test 4 - Конструктор без параметров для AdvancedAlarmSystem:");
+        Console.WriteLine(advAlarm1.ToString());
+        Console.WriteLine("Подходит ли заряд батареи для стабильной работы: " + advAlarm1.IsBatteryLevelSufficient());
+        Console.WriteLine();
+
+        // 5. Тест конструктора с параметрами для батареи и сети
         
+        Console.WriteLine("Test 5 - Конструктор с зарядом батареи и состоянием сети:");
+
+        int batteryLevel;
+        bool networkConnection;
+
         try
         {
-            Console.Write("Начальная точка (X2): ");
-            x2 = Convert.ToDouble(Console.ReadLine());
-            Console.Write("Конечная точка (Y2): ");
-            y2 = Convert.ToDouble(Console.ReadLine());
+            Console.Write("Количество заряда (0-100): ");
+            batteryLevel = Convert.ToInt32(Console.ReadLine());
+            if (batteryLevel < 0 || batteryLevel > 100) throw new Exception();
+            Console.Write("Подключение к сети (true/false): ");
+            networkConnection = Convert.ToBoolean(Console.ReadLine());
         }
         catch
         {
-            Console.WriteLine("Некорректно введены числа");
+            Console.WriteLine("Некорректный ввод данных");
             return;
         }
+        
+        AdvancedAlarmSystem advAlarm2 = new AdvancedAlarmSystem(batteryLevel, networkConnection);
 
-        // Создаем отрезки
-        LineSegment segment1 = new LineSegment(x1, y1);
-        LineSegment segment2 = new LineSegment(x2, y2);
+        Console.WriteLine(advAlarm2.ToString());  
+        Console.WriteLine("Подходит ли заряд батареи для стабильной работы: " + advAlarm2.IsBatteryLevelSufficient());
+        Console.WriteLine();
 
-        // Находим пересечение
-        LineSegment intersection = LineSegment.Intersect(segment1, segment2);
+        // 6. Тест конструктора со всеми параметрами
+        
+        Console.WriteLine("Test 6 - Конструктор со всеми параметрами:");
 
-        // Вывод результата
-        if (intersection != null)
+        try
         {
-            Console.WriteLine($"Отрезки пересекаются на отрезке: [{intersection.X}, {intersection.Y}]");
+            Console.Write("Включение датчика движения (true/false): ");
+            motionTrigger = Convert.ToBoolean(Console.ReadLine());
+            Console.Write("Включение датчика звука (true/false): ");
+            soundTrigger = Convert.ToBoolean(Console.ReadLine());
+            Console.Write("Количество заряда (0-100): ");
+            batteryLevel = Convert.ToInt32(Console.ReadLine());
+            if (batteryLevel < 0 || batteryLevel > 100) throw new Exception();
+            Console.Write("Подключение к сети (true/false): ");
+            networkConnection = Convert.ToBoolean(Console.ReadLine());
         }
-        else
+        catch
         {
-            Console.WriteLine("Отрезки не пересекаются.");
+            Console.WriteLine("Некорректный ввод данных");
+            return;
         }
+        
+        AdvancedAlarmSystem advAlarm3 = new AdvancedAlarmSystem(motionTrigger, soundTrigger, 
+            batteryLevel, networkConnection);
 
-        // Тестирование операций
-
-        // Унарная операция "!"
-        LineSegment modifiedSegment = !segment1;
-        Console.WriteLine("После ! операции: " + modifiedSegment.ToString());
-
-        // Приведение типов
-        int endAsInt = segment1;  // Неявное приведение к int (целая часть Y)
-        Console.WriteLine("Конец как int: " + endAsInt);
-
-        double startAsDouble = (double)segment1; // Явное приведение к double (X)
-        Console.WriteLine("Начало как double: " + startAsDouble);
-
-        // Бинарная операция + для "LineSegment + int"
-        LineSegment increasedSegment1 = segment1 + 2;
-        Console.WriteLine("Segment1 + 2: " + increasedSegment1.ToString());
-
-        // Бинарная операция + для "int + LineSegment"
-        LineSegment increasedSegment2 = 2 + segment2;
-        Console.WriteLine("2 + Segment2: " + increasedSegment2.ToString());
-
-        // Операция сравнения ">"
-        bool isContained = segment1 > segment2;
-        Console.WriteLine("Segment1 > Segment2: " + isContained);
-
-        bool isNotContained = segment2 > segment1;
-        Console.WriteLine("Segment2 > Segment1: " + isNotContained);
+        Console.WriteLine(advAlarm3.ToString());  
+        Console.WriteLine("Подходит ли заряд батареи для стабильной работы: " + advAlarm3.IsBatteryLevelSufficient());
+        Console.WriteLine();
     }
 }
