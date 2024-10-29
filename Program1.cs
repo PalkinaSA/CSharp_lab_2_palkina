@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 public class LineSegment
 {
@@ -48,10 +48,16 @@ public class LineSegment
     // Унарная операция "!" — установка одной из координат в 0
     public static LineSegment operator !(LineSegment segment)
     {
-        double start = Math.Min(segment.X, segment.Y);
-        double end = Math.Max(segment.X, segment.Y);
-
-        return (start >= 0) ? new LineSegment(0, end) : new LineSegment(start, 0);
+        if (segment.X <= segment.Y)
+        {
+            if (segment.X <= 0) return new LineSegment(segment.X, 0);
+            else return new LineSegment(0, segment.Y);
+        }
+        else
+        {
+            if (segment.Y <= 0) return new LineSegment(segment.X, 0);
+            else return new LineSegment(0, segment.Y);
+        }
     }
 
     // Приведение к int (неявное) — целая часть координаты конца отрезка (Y)
@@ -69,13 +75,17 @@ public class LineSegment
     // Бинарная операция + для "LineSegment + int"
     public static LineSegment operator +(LineSegment segment, int value)
     {
-        return new LineSegment(segment.X + value, segment.Y); // Увеличиваем X
+        double newX = segment.X + value;    // Увеличиваем X
+
+        return (newX >= segment.Y) ? new LineSegment(segment.Y, newX) : new LineSegment(newX, segment.Y); 
     }
 
     // Бинарная операция + для "int + LineSegment"
     public static LineSegment operator +(int value, LineSegment segment)
     {
-        return new LineSegment(segment.X, segment.Y + value); // Увеличиваем Y
+        double newY = segment.Y + value;    // Увеличиваем Y
+
+        return (newY >= segment.X) ? new LineSegment(segment.X, newY) : new LineSegment(newY, segment.X); 
     }
 
     // Бинарная операция ">" — проверяем, включает ли левый отрезок правый
@@ -155,28 +165,41 @@ public class Program1
 
         // Унарная операция "!"
         LineSegment modifiedSegment = !segment1;
-        Console.WriteLine("После ! операции: " + modifiedSegment.ToString());
+        Console.WriteLine("Segment1 после операции ! : " + modifiedSegment.ToString());
 
         // Приведение типов
         int endAsInt = segment1;  // Неявное приведение к int (целая часть Y)
-        Console.WriteLine("Конец как int: " + endAsInt);
+        Console.WriteLine("Y как int (неявное) для segment1: " + endAsInt);
 
         double startAsDouble = (double)segment1; // Явное приведение к double (X)
-        Console.WriteLine("Начало как double: " + startAsDouble);
+        Console.WriteLine("X как double (явное) для segment1: " + startAsDouble);
+
+        Console.Write("Введите целое число для добавления к отрезкам: ");
+
+        int value;
+        try
+        {
+            value = Convert.ToInt32(Console.ReadLine());
+        }
+        catch 
+        {
+            Console.WriteLine("Некорректно введено число");
+            return;
+        }
 
         // Бинарная операция + для "LineSegment + int"
-        LineSegment increasedSegment1 = segment1 + 2;
-        Console.WriteLine("Segment1 + 2: " + increasedSegment1.ToString());
+        LineSegment increasedSegment1 = segment1 + value;
+        Console.WriteLine("segment1 + " + value + " = " + increasedSegment1.ToString());
 
         // Бинарная операция + для "int + LineSegment"
-        LineSegment increasedSegment2 = 2 + segment2;
-        Console.WriteLine("2 + Segment2: " + increasedSegment2.ToString());
+        LineSegment increasedSegment2 = value + segment2;
+        Console.WriteLine(value + " + segment2 = " + increasedSegment2.ToString());
 
         // Операция сравнения ">"
         bool isContained = segment1 > segment2;
-        Console.WriteLine("Segment1 > Segment2: " + isContained);
+        Console.WriteLine("Включает ли segment1 отрезок segment2: " + isContained);
 
         bool isNotContained = segment2 > segment1;
-        Console.WriteLine("Segment2 > Segment1: " + isNotContained);
+        Console.WriteLine("Включает ли segment2 отрезок segment1: " + isNotContained);
     }
 }
