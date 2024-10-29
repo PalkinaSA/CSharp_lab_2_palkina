@@ -69,13 +69,13 @@ public class LineSegment
     // Бинарная операция + для "LineSegment + int"
     public static LineSegment operator +(LineSegment segment, int value)
     {
-        return new LineSegment(segment.X + value, segment.Y); // Увеличиваем X1
+        return new LineSegment(segment.X + value, segment.Y); // Увеличиваем X
     }
 
     // Бинарная операция + для "int + LineSegment"
     public static LineSegment operator +(int value, LineSegment segment)
     {
-        return new LineSegment(segment.X, segment.Y + value); // Увеличиваем X2
+        return new LineSegment(segment.X, segment.Y + value); // Увеличиваем Y
     }
 
     // Бинарная операция ">" — проверяем, включает ли левый отрезок правый
